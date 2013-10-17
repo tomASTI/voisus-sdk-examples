@@ -3,6 +3,8 @@
 
     using System;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Reflection;
     using System.Text;
     using System.Runtime.InteropServices;
     using System.Diagnostics;
@@ -15,7 +17,9 @@
     public static class VRCC
     {
         #region private
+
         /* These are functions which need redefinitions to be used externally without the safe keyword */
+
         [DllImport("VRCClient.dll", CallingConvention = CallingConvention.Cdecl)]
         extern static int VRCC_Start(int argc, ref IntPtr argv);
 
@@ -126,7 +130,9 @@
         #endregion private
 
         #region public
+
         /* These are functions which can be used externally without needing the safe keyword */
+
         [DllImport("VRCClient.dll", CallingConvention = CallingConvention.Cdecl)]
         public extern static void Voisus_ConnectServer([MarshalAs(UnmanagedType.LPStr)] String target_ip);
         [DllImport("VRCClient.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -263,7 +269,7 @@
         [DllImport("VRCClient.dll", CallingConvention = CallingConvention.Cdecl)]
         public extern static void Radio_SetNetTxFrequency(int radio_index, [MarshalAs(UnmanagedType.LPStr)] String net_id, [MarshalAs(UnmanagedType.U8)] ulong freq);
         [DllImport("VRCClient.dll", CallingConvention = CallingConvention.Cdecl)]
-        public extern static void Radio_SetNetID_Unsafe(int radio_index, [MarshalAs(UnmanagedType.LPStr)] String net_id);
+        public extern static void Radio_SetNetID(int radio_index, [MarshalAs(UnmanagedType.LPStr)] String net_id);
         [DllImport("VRCClient.dll", CallingConvention = CallingConvention.Cdecl)]
         public extern static ulong Radio_NetTxFrequencyActive (int radio_index);
         [DllImport("VRCClient.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -385,14 +391,16 @@
         #endregion public
 
         #region redefinitions
+
         /* Safe public alternatives to the unsafe private functions */
 
         public static void VRCC_Start()
         {
             IntPtr argv = IntPtr.Zero;
-            if (VRCC_Start(0, ref argv) == 0)
+            /*if (*/
+            VRCC_Start(0, ref argv); /*== 0)
                 throw new VRCCException("VoisusMain.exe failed to start - verify that it's been installed correctly.");
-        }
+       */ }
 
         public static String Voisus_LogPath()
         {
@@ -765,5 +773,21 @@
         }
 
         #endregion alternate versions
+
+        #region added functionality
+
+        /* Functions not specified in the VRCC that perform tasks frequently required during development */
+
+        public static void Role_SetIndex(int role_index)
+        {
+            Role_SetRole(VRCC.Role_Id(role_index));
+        }
+
+        public static void EntityState_SetIndex(int EntityState_index)
+        {
+            EntityState_SetEntityState(EntityState_Id(EntityState_index));
+        }
+
+        #endregion added functionality
     }
 }
