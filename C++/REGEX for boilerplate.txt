@@ -1,0 +1,17 @@
+//turn header file function declarations file into dll forward declarations
+
+Find:
+\t(.*) (.*)\((.*);
+
+Replace:
+\ttypedef $1 (*_$2_fn)($3;\n_$2_fn $2_fn;
+
+
+
+//turn dll forward declarations into dll location statements
+
+Find:
+typedef.*\n_(.*)_fn (.*);
+
+Replace:
+$1_fn = (_$1_fn)GetProcAddress(hInstLibrary, "$1");
